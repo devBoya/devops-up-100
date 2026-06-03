@@ -28,8 +28,11 @@ If you don't have Homebrew yet: https://brew.sh
 
 The VM mounts **only** `~/devops-lab/` from your Mac — not your entire home directory. This way, a root command inside the VM can never reach anything outside that folder.
 
+> **This step is required before `limactl start`.** If the folder doesn't exist when Lima boots, you'll see `field mounts[0].location refers to a non-existent directory: "~/devops-lab"`. Lima will continue but the mount won't work. Create the folder first.
+
 ```bash
 mkdir -p ~/devops-lab
+ls -ld ~/devops-lab    # verify it's there before moving on
 ```
 
 Anything outside `~/devops-lab/` is invisible to the VM. Treat that folder as the bridge between host and VM.
@@ -48,6 +51,8 @@ git clone https://github.com/devBoya/devops-up-100.git
 cd devops-up-100/linux-ops-lab-week1
 limactl start --name=linux-ops-lab ./lab.yaml
 ```
+
+> When Lima prompts `Proceed with the current configuration`, hit Enter. You may see a one-time `Non-strict YAML detected` warning on older Lima versions — it's safe to ignore as long as the warning doesn't reference an `unknown field`. If it does, run `limactl --version` and update Lima with `brew upgrade lima`.
 
 ### Option B — Use Lima's tracking template
 
@@ -126,6 +131,8 @@ limactl delete linux-ops-lab            # nuke it (lab.yaml lets you recreate)
 | Symptom | Likely cause | Fix |
 |---|---|---|
 | `limactl start` hangs at "writing image" | First-run cloud image download | Wait — first boot can take 3-5 min on slow links |
-| `curl localhost:8080` fails *on the host* | Lima doesn't forward ports by default | Either `curl` from inside `limactl shell`, or expose with the `portForwards` block in `lab.yaml` |
+| `field mounts[0].location refers to a non-existent directory: "~/devops-lab"` | You started the VM before running `mkdir -p ~/devops-lab` | `mkdir -p ~/devops-lab && limactl stop linux-ops-lab && limactl start linux-ops-lab` |
+| `Non-strict YAML detected ... unknown field "hostname"` | Old `lab.yaml` from before the schema fix | `git pull` to get the current `lab.yaml` (uses a `provision:` script instead of `hostname:`) |
+| `curl localhost:8080` fails *on the host* | Lima doesn't forward ports by default | Either `curl` from inside `limactl shell`, or confirm the `portForwards` block is present in `lab.yaml` |
 | `lsb_release` shows 22.04 | Used an old Lima template | `limactl delete linux-ops-lab` and recreate with `lab.yaml` |
 | "Permission denied" on `install.sh` | Forgot `chmod +x` after clone | `chmod +x install.sh scripts/*.sh && sudo ./install.sh` |

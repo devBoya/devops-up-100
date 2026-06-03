@@ -39,5 +39,11 @@ portForwards:
   - guestPort: 8080
     hostPort: 8080
 
-# Hostname inside the VM
-hostname: "linux-ops-lab"
+# Set the in-VM hostname. Lima has no top-level `hostname:` field, so we use a
+# system-mode provisioning script. Runs once on first boot.
+provision:
+  - mode: system
+    script: |
+      #!/bin/bash
+      set -eu
+      hostnamectl set-hostname linux-ops-lab
