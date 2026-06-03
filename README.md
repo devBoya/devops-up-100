@@ -16,6 +16,8 @@ Pick the setup guide for your host. All three end at the same Ubuntu 24.04 VM wi
 | Windows 10/11        | Multipass (Hyper-V or VirtualBox backend) | [docs/setup-windows.md](docs/setup-windows.md) |
 | Other Linux distros  | Multipass (KVM backend)                   | [docs/setup-linux.md](docs/setup-linux.md) |
 
+**Safety note on host mounts.** All three setup paths mount **only** a dedicated `~/devops-lab/` folder from your host into the VM — never your whole home directory. The lab deliberately exercises root commands (`chown`, `chmod`, `systemctl`, the failure services), and scoping the mount keeps blast radius contained to that one folder. Create it on the host before launching the VM (`mkdir -p ~/devops-lab` on Mac/Linux, `New-Item -ItemType Directory -Force -Path $HOME\devops-lab` on Windows).
+
 Once you're inside the VM, every host converges on the same three commands:
 
 ```bash

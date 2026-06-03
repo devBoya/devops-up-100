@@ -19,10 +19,19 @@ images:
   - location: "https://cloud-images.ubuntu.com/releases/noble/release/ubuntu-24.04-server-cloudimg-arm64.img"
     arch: "aarch64"
 
-# Mount your repo into the VM so changes on the host appear inside (optional).
+# Mount ONLY a dedicated host folder (~/devops-lab) into the VM.
+#
+# Safety rationale: scripts in this lab run as root inside the VM. By mounting
+# only ~/devops-lab — not your whole home directory — a stray `sudo rm -rf` or
+# misconfigured `chown` inside the VM cannot reach files outside that folder.
+#
+# Create the folder on the host BEFORE running `limactl start`:
+#   mkdir -p ~/devops-lab
+#
+# Inside the VM the folder is reachable at /home/<your-user>/devops-lab.
 mounts:
-  - location: "~"
-    writable: false
+  - location: "~/devops-lab"
+    writable: true
 
 # Forward the lab API to the host. Comment out if you don't want :8080 reachable
 # from macOS — students can always `curl` from inside `limactl shell`.

@@ -42,17 +42,28 @@ multipass version
 
 Multipass uses QEMU+KVM on Linux by default.
 
-## 3. Start the lab VM
+## 3. Create the dedicated host folder
+
+The VM mounts **only** `~/devops-lab/` from your host — not your entire home directory. This way, a root command inside the VM can never reach anything outside that folder.
+
+```bash
+mkdir -p ~/devops-lab
+```
+
+Anything outside `~/devops-lab/` is invisible to the VM. Treat that folder as the bridge between host and VM.
+
+## 4. Start the lab VM
 
 ```bash
 multipass launch 24.04 \
   --name linux-ops-lab \
   --cpus 1 \
   --memory 1G \
-  --disk 8G
+  --disk 8G \
+  --mount "$HOME/devops-lab:/home/ubuntu/devops-lab"
 ```
 
-First launch downloads the Ubuntu 24.04 cloud image (a few minutes on a fresh machine).
+First launch downloads the Ubuntu 24.04 cloud image (a few minutes on a fresh machine). The `--mount` flag scopes the host share to exactly one folder. Use `multipass mount` / `multipass unmount` afterwards to add or remove shares.
 
 ### Lab VM profile
 
@@ -61,8 +72,9 @@ First launch downloads the Ubuntu 24.04 cloud image (a few minutes on a fresh ma
 | CPU | 1 |
 | RAM | 1 GB |
 | Disk | 8 GB |
+| Host mount | `~/devops-lab` → `/home/ubuntu/devops-lab` (only) |
 
-## 4. Get into the VM
+## 5. Get into the VM
 
 ```bash
 multipass shell linux-ops-lab
@@ -70,16 +82,27 @@ multipass shell linux-ops-lab
 
 Your prompt should now look like `ubuntu@linux-ops-lab:~$`. From here on, every command runs **inside** the VM unless explicitly marked "on the host".
 
-## 5. Clone the repository inside the VM
+## 6. Clone the repository
+
+Two equivalent paths — pick one:
+
+**Option A (recommended)** — clone into the shared folder so you can edit on the host and run inside the VM:
 
 ```bash
-sudo apt-get update
-sudo apt-get install -y git
+cd ~/devops-lab
 git clone https://github.com/devBoya/devops-up-100.git
 cd devops-up-100/linux-ops-lab-week1
 ```
 
-## 6. Verify you're on Ubuntu 24.04
+**Option B** — clone into a VM-only location (host stays clean):
+
+```bash
+sudo apt-get update && sudo apt-get install -y git
+git clone https://github.com/devBoya/devops-up-100.git ~/devops-up-100
+cd ~/devops-up-100/linux-ops-lab-week1
+```
+
+## 7. Verify you're on Ubuntu 24.04
 
 ```bash
 uname -a
@@ -90,7 +113,7 @@ df -h
 
 Expected: `Ubuntu 24.04 LTS` on the `Description:` line.
 
-## 7. Run the installer
+## 8. Run the installer
 
 ```bash
 sudo ./install.sh
@@ -105,18 +128,21 @@ multipass info linux-ops-lab   # look at the "IPv4" line
 curl http://<that-ip>:8080
 ```
 
-## 8. Multipass cheat sheet
+## 9. Multipass cheat sheet
 
 ```bash
-multipass list                       # what VMs do I have
-multipass shell linux-ops-lab        # open a shell
-multipass stop linux-ops-lab         # power off, keep state
-multipass start linux-ops-lab        # power on
-multipass delete linux-ops-lab       # mark for deletion
-multipass purge                      # actually free the disk after delete
-multipass info linux-ops-lab         # IP, status, mounts, disk
-multipass mount ~/repos linux-ops-lab:/mnt/repos    # share a host folder
+multipass list                                                                # what VMs do I have
+multipass shell linux-ops-lab                                                 # open a shell
+multipass stop linux-ops-lab                                                  # power off, keep state
+multipass start linux-ops-lab                                                 # power on
+multipass delete linux-ops-lab                                                # mark for deletion
+multipass purge                                                               # actually free the disk after delete
+multipass info linux-ops-lab                                                  # IP, status, mounts, disk
+multipass mount ~/devops-lab linux-ops-lab:/home/ubuntu/devops-lab            # re-mount if you launched without --mount
+multipass unmount linux-ops-lab:/home/ubuntu/devops-lab                       # remove the share
 ```
+
+> Avoid mounting `$HOME` wholesale — anything you mount is reachable by root inside the VM.
 
 ## Alternatives (use only if Multipass won't run on your host)
 
