@@ -140,6 +140,10 @@ free -h
 df -h
 ```
 
+## Security
+
+This lab contains **intentionally broken services**. Read [SECURITY.md](SECURITY.md) before running anything — it documents the threat model, blast-radius containment, and the things students should never do (e.g. running `install.sh` on a workstation, or exposing port 8080 to a public network).
+
 ## License
 
 Internal mentorship material. Treat as proprietary; do not distribute outside the cohort.
