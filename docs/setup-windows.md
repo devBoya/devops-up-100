@@ -19,12 +19,14 @@ Confirm virtualization is on: open Task Manager → Performance → CPU → "Vir
 
 Multipass is Canonical's official tool for running Ubuntu VMs. One binary, works on Home and Pro.
 
+> **Privilege scope.** The Administrator PowerShell below is a **one-time install step**. It registers Multipass as a Windows service. After install, every `multipass launch / shell / stop / delete` runs from a regular non-elevated PowerShell as your normal user. You should never need elevation again for the rest of this lab on the host side.
+
 ```powershell
-# In an elevated (Administrator) PowerShell:
+# One-time. Run from an Administrator PowerShell:
 winget install Canonical.Multipass
 ```
 
-Reopen PowerShell after install so `multipass` is on `PATH`:
+Close that elevated window. Open a **normal** (non-admin) PowerShell — that's where you'll spend the rest of the lab on the host:
 
 ```powershell
 multipass version

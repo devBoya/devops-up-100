@@ -28,16 +28,26 @@ If both are good, you can use any of the options below. If KVM isn't loaded, you
 
 Multipass is Canonical's official tool for running Ubuntu VMs. One command, works on every distro.
 
+> **Privilege scope.** The `sudo` below is a **one-time install step**. After install, every `multipass launch / shell / stop / delete` runs as your normal user — no sudo. The snap-installed Multipass daemon runs as root in the background; your client commands talk to it via a socket.
+
 ```bash
-sudo snap install multipass             # Ubuntu, Fedora (with snapd), most distros
+sudo snap install multipass             # one-time. Ubuntu, Fedora (with snapd), most distros
 # OR — on distros without snap, use the official tarball from
 # https://canonical.com/multipass/install
 ```
 
-Verify:
+Verify (no sudo from here on):
 
 ```bash
 multipass version
+```
+
+If `multipass list` returns `permission denied` on your distro, your user needs to be in the `sudo` group OR the `multipass` group:
+
+```bash
+sudo usermod -aG multipass $USER
+newgrp multipass                        # apply the group in this shell, no logout needed
+# (or just log out + back in)
 ```
 
 Multipass uses QEMU+KVM on Linux by default.
@@ -156,15 +166,27 @@ multipass unmount linux-ops-lab:/home/ubuntu/devops-lab                       # 
 
 ### virt-manager quickstart (fallback)
 
+> **Privilege scope.** The `sudo` commands below are **one-time setup**. Adding yourself to `libvirt` and `kvm` means every later `virt-manager` / `virsh` invocation runs as your normal user with no sudo. Group membership only takes effect in *new* shells — either log out and back in, or use `newgrp` in your current shell as shown.
+
 ```bash
-# Ubuntu/Debian:
+# Ubuntu/Debian (one-time):
 sudo apt install qemu-kvm libvirt-daemon-system virt-manager
 sudo usermod -aG libvirt,kvm $USER
-# Fedora:
+
+# Fedora (one-time):
 sudo dnf install @virtualization
 sudo systemctl enable --now libvirtd
+sudo usermod -aG libvirt,kvm $USER
 
-# log out and back in so the group change takes effect, then:
+# Apply the new group membership in THIS shell without logging out:
+newgrp libvirt        # then run `newgrp kvm` too if you want both active here
+# — OR, simpler: log out of your desktop session and back in. All shells inherit the new groups.
+
+# Verify (no sudo needed):
+groups | tr ' ' '\n' | grep -E 'libvirt|kvm'
+virsh list --all
+
+# Launch the GUI:
 virt-manager
 ```
 
