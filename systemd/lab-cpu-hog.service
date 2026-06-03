@@ -1,0 +1,26 @@
+[Unit]
+Description=linux-ops-lab — CPU starvation scenario (Scenario 1)
+Documentation=file:///opt/linux-ops-lab/scenarios/scenario-01-cpu-starvation.md
+After=network-online.target
+
+[Service]
+Type=simple
+User=labapp
+Group=labapp
+WorkingDirectory=/opt/linux-ops-lab
+ExecStart=/opt/linux-ops-lab/scripts/cpu-hog.sh
+Restart=on-failure
+RestartSec=3s
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=lab-cpu-hog
+# Be polite about CPU scheduling so students can still SSH in.
+CPUSchedulingPolicy=batch
+Nice=10
+
+NoNewPrivileges=true
+ProtectSystem=full
+ProtectHome=true
+
+[Install]
+WantedBy=multi-user.target

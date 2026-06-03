@@ -1,0 +1,25 @@
+[Unit]
+Description=linux-ops-lab — Permission denied scenario (Scenario 3)
+Documentation=file:///opt/linux-ops-lab/scenarios/scenario-03-permission-denied.md
+After=network-online.target
+
+[Service]
+Type=simple
+User=labapp
+Group=labapp
+WorkingDirectory=/opt/linux-ops-lab
+ExecStart=/opt/linux-ops-lab/scripts/permission-bug.sh
+Restart=on-failure
+RestartSec=3s
+StartLimitIntervalSec=60
+StartLimitBurst=5
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=lab-permission-bug
+
+NoNewPrivileges=true
+ProtectSystem=full
+ProtectHome=true
+
+[Install]
+WantedBy=multi-user.target

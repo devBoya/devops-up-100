@@ -1,0 +1,29 @@
+[Unit]
+Description=linux-ops-lab — Memory pressure scenario (Scenario 2)
+Documentation=file:///opt/linux-ops-lab/scenarios/scenario-02-memory-pressure.md
+After=network-online.target
+
+[Service]
+Type=simple
+User=labapp
+Group=labapp
+WorkingDirectory=/opt/linux-ops-lab
+ExecStart=/opt/linux-ops-lab/scripts/memory-leak.sh
+Restart=on-failure
+RestartSec=5s
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=lab-memory-leak
+
+# Cap how badly this can hurt the VM. Students should still see pressure but
+# the kernel should kill *this* service first, not sshd.
+MemoryMax=700M
+MemoryHigh=500M
+OOMScoreAdjust=800
+
+NoNewPrivileges=true
+ProtectSystem=full
+ProtectHome=true
+
+[Install]
+WantedBy=multi-user.target

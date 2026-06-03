@@ -1,0 +1,22 @@
+[Unit]
+Description=linux-ops-lab — Structured application logger
+After=network-online.target
+
+[Service]
+Type=simple
+User=labapp
+Group=labapp
+WorkingDirectory=/opt/linux-ops-lab
+ExecStart=/opt/linux-ops-lab/scripts/logger.sh
+Restart=on-failure
+RestartSec=3s
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=lab-logger
+
+NoNewPrivileges=true
+ProtectSystem=full
+ProtectHome=true
+
+[Install]
+WantedBy=multi-user.target
