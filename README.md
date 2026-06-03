@@ -8,20 +8,20 @@ The lab is intentionally **incident-first, command-second**. The first thing a s
 
 ## Quick start
 
-On macOS (full guide: [docs/setup-macos.md](docs/setup-macos.md)):
+Pick the setup guide for your host. All three end at the same Ubuntu 24.04 VM with this repo cloned inside it.
+
+| Host OS | Recommended tool | Guide |
+|---|---|---|
+| macOS                | Lima (pinned to 24.04 via `lab.yaml`) | [docs/setup-macos.md](docs/setup-macos.md) |
+| Windows 10/11        | Multipass (Hyper-V or VirtualBox backend) | [docs/setup-windows.md](docs/setup-windows.md) |
+| Other Linux distros  | Multipass (KVM backend)                   | [docs/setup-linux.md](docs/setup-linux.md) |
+
+Once you're inside the VM, every host converges on the same three commands:
 
 ```bash
-# 1. install Lima + start an Ubuntu 24.04 VM (uses the pinned lab.yaml in this repo)
-brew install lima
-limactl start --name=linux-ops-lab ./lab.yaml
-
-# 2. drop into the VM and clone this repo inside it
-limactl shell linux-ops-lab
 sudo apt-get install -y git
 git clone https://github.com/devBoya/devops-up-100.git
 cd devops-up-100/linux-ops-lab-week1
-
-# 3. bring the lab up
 sudo ./install.sh
 ./healthcheck.sh
 curl localhost:8080         # → linux-ops-lab healthy
@@ -76,7 +76,9 @@ linux-ops-lab-week1/
 │   ├── scenario-03-permission-denied.md
 │   └── scenario-04-failing-service.md
 └── docs/
-    ├── setup-macos.md         # student VM setup
+    ├── setup-macos.md         # student VM setup — Lima
+    ├── setup-windows.md       # student VM setup — Multipass / WSL2 fallback
+    ├── setup-linux.md         # student VM setup — Multipass / KVM / LXD
     ├── facilitator-guide.md   # session agendas, Slido, homework
     ├── student-guide.md       # daily flow + rules of engagement
     └── command-cheatsheet.md  # one-page reference
