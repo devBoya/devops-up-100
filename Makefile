@@ -49,6 +49,7 @@ break-memory:  ## Inject the memory pressure scenario.
 	sudo systemctl start lab-memory-leak
 
 break-permissions:  ## Inject the permission denied scenario.
+	sudo systemctl stop lab-permission-bug 2>/dev/null || true
 	sudo touch /var/log/linux-ops-lab/permission-bug.log
 	sudo chown root:root /var/log/linux-ops-lab/permission-bug.log
 	sudo chmod 0600      /var/log/linux-ops-lab/permission-bug.log
