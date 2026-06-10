@@ -6,10 +6,13 @@ SHELL := /bin/bash
 
 HEALTHY := lab-api lab-worker lab-scheduler lab-logger
 BROKEN  := lab-cpu-hog lab-memory-leak lab-permission-bug
+NETWORK := lab-network-api lab-network-wrong-port lab-network-loopback \
+           lab-network-firewalled lab-network-dns-client
 
 .PHONY: help install uninstall reset health \
         start stop restart status logs \
         break-cpu break-memory break-permissions clear-breaks \
+        break-networking fix-networking \
         lint
 
 help:  ## Show this help.
@@ -37,10 +40,10 @@ restart:  ## Restart the four healthy services.
 	sudo systemctl restart $(HEALTHY)
 
 status:  ## Show systemctl status for all lab services.
-	systemctl --no-pager status $(HEALTHY) $(BROKEN) || true
+	systemctl --no-pager status $(HEALTHY) $(BROKEN) $(NETWORK) || true
 
 logs:  ## Tail journald logs for all lab services.
-	journalctl -f $(addprefix -u ,$(HEALTHY) $(BROKEN))
+	journalctl -f $(addprefix -u ,$(HEALTHY) $(BROKEN) $(NETWORK))
 
 break-cpu:  ## Inject the CPU starvation scenario.
 	sudo systemctl start lab-cpu-hog
@@ -55,8 +58,17 @@ break-permissions:  ## Inject the permission denied scenario.
 	sudo chmod 0600      /var/log/linux-ops-lab/permission-bug.log
 	sudo systemctl start lab-permission-bug
 
+break-networking:  ## Inject the networking failure scenario (Scenario 5).
+	sudo systemctl start $(NETWORK)
+	sudo /opt/linux-ops-lab/scripts/break-firewall.sh
+	sudo /opt/linux-ops-lab/scripts/break-dns.sh
+
+fix-networking:  ## Fix all networking scenario failures (Scenario 5).
+	sudo /opt/linux-ops-lab/scripts/fix-firewall.sh
+	sudo /opt/linux-ops-lab/scripts/fix-dns.sh
+
 clear-breaks:  ## Stop all failure services without resetting state.
-	sudo systemctl stop $(BROKEN) || true
+	sudo systemctl stop $(BROKEN) $(NETWORK) || true
 
 lint:  ## Syntax-check every shell script in the repo.
 	@set -e; for f in install.sh uninstall.sh reset-lab.sh healthcheck.sh scripts/*.sh; do \

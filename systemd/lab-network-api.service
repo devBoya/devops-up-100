@@ -1,0 +1,24 @@
+[Unit]
+Description=linux-ops-lab — Healthy network API (HTTP :9080) (Scenario 5)
+Documentation=file:///opt/linux-ops-lab/scenarios/scenario-05-networking-failure.md
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=labapp
+Group=labapp
+WorkingDirectory=/opt/linux-ops-lab
+ExecStart=/opt/linux-ops-lab/scripts/network-api.sh
+Restart=on-failure
+RestartSec=3s
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=lab-network-api
+
+NoNewPrivileges=true
+ProtectSystem=full
+ProtectHome=true
+
+[Install]
+WantedBy=multi-user.target

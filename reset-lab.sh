@@ -10,7 +10,9 @@ LAB_HOME="/opt/linux-ops-lab"
 LAB_LOG_DIR="/var/log/linux-ops-lab"
 
 HEALTHY=(lab-api lab-worker lab-scheduler lab-logger)
-BROKEN=(lab-cpu-hog lab-memory-leak lab-permission-bug)
+BROKEN=(lab-cpu-hog lab-memory-leak lab-permission-bug
+        lab-network-api lab-network-wrong-port lab-network-loopback
+        lab-network-firewalled lab-network-dns-client)
 
 log()  { printf '\033[1;36m[reset]\033[0m %s\n' "$*"; }
 warn() { printf '\033[1;33m[reset:warn]\033[0m %s\n' "$*" >&2; }
@@ -37,6 +39,12 @@ if [[ -d "$LAB_LOG_DIR" ]]; then
   find "$LAB_LOG_DIR" -type f -name 'leak-*'      -delete 2>/dev/null || true
   find "$LAB_LOG_DIR" -type f -name 'permission-*' -delete 2>/dev/null || true
 fi
+
+log "Restoring networking scenario state"
+iptables -D INPUT -p tcp --dport 9083 -j DROP 2>/dev/null || true
+sed -i '/lab-network-api\.local/d' /etc/hosts
+grep -q 'lab-network-api\.local' /etc/hosts 2>/dev/null || \
+  echo "127.0.0.1 lab-network-api.local # linux-ops-lab" >> /etc/hosts
 
 log "Resetting failed-state on all units"
 systemctl reset-failed >/dev/null 2>&1 || true

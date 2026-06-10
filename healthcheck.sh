@@ -6,7 +6,9 @@
 set -Eeuo pipefail
 
 LAB_LOG_DIR="/var/log/linux-ops-lab"
-SERVICES=(lab-api lab-worker lab-scheduler lab-logger lab-cpu-hog lab-memory-leak lab-permission-bug)
+SERVICES=(lab-api lab-worker lab-scheduler lab-logger lab-cpu-hog lab-memory-leak lab-permission-bug
+          lab-network-api lab-network-wrong-port lab-network-loopback
+          lab-network-firewalled lab-network-dns-client)
 
 bold()    { printf '\033[1m%s\033[0m\n' "$*"; }
 section() { printf '\n\033[1;36m== %s ==\033[0m\n' "$*"; }

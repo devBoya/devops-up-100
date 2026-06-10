@@ -1,0 +1,24 @@
+[Unit]
+Description=linux-ops-lab — DNS client for lab-network-api.local (Scenario 5)
+Documentation=file:///opt/linux-ops-lab/scenarios/scenario-05-networking-failure.md
+After=network-online.target lab-network-api.service
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=labapp
+Group=labapp
+WorkingDirectory=/opt/linux-ops-lab
+ExecStart=/opt/linux-ops-lab/scripts/network-dns-client.sh
+Restart=on-failure
+RestartSec=3s
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=lab-network-dns-client
+
+NoNewPrivileges=true
+ProtectSystem=full
+ProtectHome=true
+
+[Install]
+WantedBy=multi-user.target

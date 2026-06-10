@@ -18,6 +18,8 @@ trap 'die "uninstall.sh failed at line $LINENO"' ERR
 ALL_SVCS=(
   lab-api lab-worker lab-scheduler lab-logger
   lab-cpu-hog lab-memory-leak lab-permission-bug
+  lab-network-api lab-network-wrong-port lab-network-loopback
+  lab-network-firewalled lab-network-dns-client
 )
 
 log "Stopping + disabling all lab services"
@@ -32,6 +34,10 @@ for svc in "${ALL_SVCS[@]}"; do
 done
 systemctl daemon-reload
 systemctl reset-failed >/dev/null 2>&1 || true
+
+log "Cleaning up networking scenario artifacts"
+iptables -D INPUT -p tcp --dport 9083 -j DROP 2>/dev/null || true
+sed -i '/lab-network-api\.local/d' /etc/hosts 2>/dev/null || true
 
 log "Removing $LAB_HOME and $LAB_LOG_DIR"
 rm -rf "$LAB_HOME" "$LAB_LOG_DIR"

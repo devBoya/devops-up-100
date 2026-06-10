@@ -38,6 +38,14 @@ mounts:
 portForwards:
   - guestPort: 8080
     hostPort: 8080
+  - guestPort: 9080
+    hostPort: 9080
+  - guestPort: 9081
+    hostPort: 9081
+  - guestPort: 9082
+    hostPort: 9082
+  - guestPort: 9083
+    hostPort: 9083
 
 # Set the in-VM hostname. Lima has no top-level `hostname:` field, so we use a
 # system-mode provisioning script. Runs once on first boot.

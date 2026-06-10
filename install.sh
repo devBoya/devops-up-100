@@ -74,7 +74,9 @@ start_healthy_services() {
 }
 
 ensure_failure_services_disabled() {
-  local broken=(lab-cpu-hog lab-memory-leak lab-permission-bug)
+  local broken=(lab-cpu-hog lab-memory-leak lab-permission-bug
+                lab-network-api lab-network-wrong-port lab-network-loopback
+                lab-network-firewalled lab-network-dns-client)
   for svc in "${broken[@]}"; do
     log "Disabling failure service $svc (off by default)"
     systemctl disable "$svc" >/dev/null 2>&1 || true
@@ -86,7 +88,8 @@ install_packages() {
   log "Installing required packages (curl, jq, htop, procps)"
   DEBIAN_FRONTEND=noninteractive apt-get update -qq
   DEBIAN_FRONTEND=noninteractive apt-get install -y -qq \
-    curl jq htop procps net-tools sysstat
+    curl jq htop procps net-tools sysstat \
+    dnsutils tcpdump iptables
 }
 
 print_status() {
@@ -102,6 +105,17 @@ print_status() {
   fi
 }
 
+setup_dns_entry() {
+  local hostname="lab-network-api.local"
+  local marker="# linux-ops-lab"
+  if ! grep -q "$hostname" /etc/hosts; then
+    log "Adding $hostname to /etc/hosts"
+    echo "127.0.0.1 $hostname $marker" >> /etc/hosts
+  else
+    log "$hostname already in /etc/hosts"
+  fi
+}
+
 main() {
   require_root
   require_ubuntu_24_04
@@ -110,6 +124,7 @@ main() {
   ensure_dirs
   install_scripts
   install_units
+  setup_dns_entry
   ensure_failure_services_disabled
   start_healthy_services
   print_status
