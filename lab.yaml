@@ -55,3 +55,5 @@ provision:
       #!/bin/bash
       set -eu
       hostnamectl set-hostname linux-ops-lab
+      apt-get update -qq
+      apt-get install -y -qq make

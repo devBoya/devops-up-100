@@ -2,7 +2,7 @@
 
 A self-contained Linux operations lab for Week 1 of the DevOps mentorship.
 
-Students stand up an Ubuntu 24.04 LTS VM, install a fake multi-service application, and then work through four production-style incidents — CPU starvation, memory pressure, permission denied, and a failing service — while being introduced to Linux fundamentals, systemd, journald, permissions, and Bash automation along the way.
+Students stand up an Ubuntu 24.04 LTS VM, install a fake multi-service application, and then work through five production-style incidents — CPU starvation, memory pressure, permission denied, a failing service, and networking failure — while being introduced to Linux fundamentals, systemd, journald, permissions, and Bash automation along the way.
 
 The lab is intentionally **incident-first, command-second**. The first thing a student sees is a ticket. Commands are introduced when they're needed to make progress.
 
@@ -63,7 +63,16 @@ linux-ops-lab-week1/
 │   ├── logger.sh              # structured JSON-ish log writer
 │   ├── cpu-hog.sh             # scenario 1: CPU starvation
 │   ├── memory-leak.sh         # scenario 2: memory pressure
-│   └── permission-bug.sh      # scenario 3: permission denied
+│   ├── permission-bug.sh      # scenario 3: permission denied
+│   ├── network-api.sh           # scenario 5: reference healthy network service
+│   ├── network-wrong-port.sh    # scenario 5: listens on wrong port
+│   ├── network-loopback.sh      # scenario 5: binds to loopback only
+│   ├── network-firewalled.sh    # scenario 5: blocked by iptables
+│   ├── network-dns-client.sh    # scenario 5: DNS resolution client
+│   ├── break-firewall.sh        # scenario 5: inject firewall rule
+│   ├── fix-firewall.sh          # scenario 5: remove firewall rule
+│   ├── break-dns.sh             # scenario 5: corrupt /etc/hosts entry
+│   └── fix-dns.sh               # scenario 5: restore /etc/hosts entry
 ├── systemd/                   # one unit file per service, runs as labapp
 │   ├── lab-api.service
 │   ├── lab-worker.service
@@ -71,12 +80,18 @@ linux-ops-lab-week1/
 │   ├── lab-logger.service
 │   ├── lab-cpu-hog.service
 │   ├── lab-memory-leak.service
-│   └── lab-permission-bug.service
+│   ├── lab-permission-bug.service
+│   ├── lab-network-api.service
+│   ├── lab-network-wrong-port.service
+│   ├── lab-network-loopback.service
+│   ├── lab-network-firewalled.service
+│   └── lab-network-dns-client.service
 ├── scenarios/                 # incident tickets + investigation paths
 │   ├── scenario-01-cpu-starvation.md
 │   ├── scenario-02-memory-pressure.md
 │   ├── scenario-03-permission-denied.md
-│   └── scenario-04-failing-service.md
+│   ├── scenario-04-failing-service.md
+│   └── scenario-05-networking-failure.md
 └── docs/
     ├── setup-macos.md         # student VM setup — Lima
     ├── setup-windows.md       # student VM setup — Multipass / WSL2 fallback
@@ -97,6 +112,11 @@ linux-ops-lab-week1/
 | `lab-cpu-hog`        | installed, **disabled** | Scenario 1 — saturates every CPU |
 | `lab-memory-leak`    | installed, **disabled** | Scenario 2 — grows RSS until soft-capped |
 | `lab-permission-bug` | installed, **disabled** | Scenario 3 — fails to write its log |
+| `lab-network-api`          | installed, **disabled** | Scenario 5 — reference healthy service on :9080 |
+| `lab-network-wrong-port`   | installed, **disabled** | Scenario 5 — listens on wrong port |
+| `lab-network-loopback`     | installed, **disabled** | Scenario 5 — binds to loopback only |
+| `lab-network-firewalled`   | installed, **disabled** | Scenario 5 — blocked by firewall |
+| `lab-network-dns-client`   | installed, **disabled** | Scenario 5 — DNS resolution client |
 
 All services run as the unprivileged `labapp` user, restart on failure, and log to journald.
 
@@ -110,6 +130,7 @@ Each scenario is a one-page incident report. Facilitator triggers, students driv
 | 2 | "App is slow, services keep restarting."        | `make break-memory` |
 | 3 | "Application can't write logs."                 | `make break-permissions` |
 | 4 | "API is down."                                  | `sudo systemctl stop lab-api` (variant A) |
+| 5 | "Application is unreachable from the network."  | `make break-networking` |
 
 See [scenarios/](scenarios/) for the full ticket, investigation hints, and facilitator key.
 
@@ -125,6 +146,8 @@ sudo ./uninstall.sh          # nuke everything
 make break-cpu               # inject scenario 1
 make break-memory            # inject scenario 2
 make break-permissions       # inject scenario 3
+make break-networking        # inject scenario 5
+make fix-networking          # fix scenario 5
 make reset                   # recover
 make logs                    # tail every lab service journal
 make status                  # systemctl status for all lab units
