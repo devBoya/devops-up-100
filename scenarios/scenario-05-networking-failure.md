@@ -160,46 +160,6 @@ Questions:
 * Do you see SYN packets?
 * Do you see any replies?
 
-## Fixing each issue
-
-### Wrong port
-
-```bash
-# The service listens on 9181 instead of 9081.
-# Fix the script or update documentation/callers to use the correct port.
-curl localhost:9181
-```
-
-### Loopback only
-
-```bash
-# The service binds to 127.0.0.1:9082 instead of 0.0.0.0:9082.
-# To fix, change the bind address in the script from 127.0.0.1 to 0.0.0.0.
-```
-
-### Firewall
-
-```bash
-# Remove the DROP rule
-sudo iptables -D INPUT -p tcp --dport 9083 -j DROP
-curl localhost:9083
-```
-
-### DNS
-
-```bash
-# Inspect the current hosts entry
-cat /etc/hosts | grep lab-network-api.local
-
-# Fix: point the name back to 127.0.0.1
-sudo sed -i '/lab-network-api.local/d' /etc/hosts
-echo '127.0.0.1 lab-network-api.local' | sudo tee -a /etc/hosts
-
-# Verify
-getent hosts lab-network-api.local
-journalctl -u lab-network-dns-client -f    # watch it recover
-```
-
 ## Required commands
 
 You should use at least these commands during the scenario:
@@ -270,50 +230,3 @@ Students should submit a short incident note with:
 7. How they verified recovery
 ```
 
-## Root cause (facilitator key)
-
-### `lab-network-wrong-port`
-
-Service expected on `:9081`, but script hardcodes port `9181`.
-
-```bash
-sudo ss -tulpn | grep 9181
-curl -v localhost:9081   # connection refused
-curl -v localhost:9181   # works
-```
-
-Fix: update the script to bind to `9081`, or update callers to use `9181`.
-
-### `lab-network-loopback`
-
-Service binds to `127.0.0.1:9082` instead of `0.0.0.0:9082`.
-
-```bash
-sudo ss -tulpn | grep 9082   # shows 127.0.0.1:9082
-curl localhost:9082           # works
-curl <vm-ip>:9082             # connection refused
-```
-
-Fix: change bind address from `127.0.0.1` to `0.0.0.0`.
-
-### `lab-network-firewalled`
-
-iptables INPUT chain has a DROP rule for port `9083`.
-
-```bash
-sudo iptables -L INPUT -n -v   # shows DROP tcp dpt:9083
-sudo tcpdump -i any port 9083  # SYN arrives, no reply
-```
-
-Fix: `sudo iptables -D INPUT -p tcp --dport 9083 -j DROP`
-
-### `lab-network-dns-client`
-
-`/etc/hosts` points `lab-network-api.local` to `192.0.2.1` (RFC 5737 TEST-NET, non-routable).
-
-```bash
-getent hosts lab-network-api.local   # returns 192.0.2.1
-cat /etc/hosts                       # shows wrong entry
-```
-
-Fix: replace with `127.0.0.1 lab-network-api.local`.

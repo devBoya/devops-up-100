@@ -11,3 +11,6 @@
 
 # Local Lima state (if a student accidentally creates it in the repo)
 .lima/
+
+# Facilitator answer keys (do not commit)
+scenarios/answers-*.md
