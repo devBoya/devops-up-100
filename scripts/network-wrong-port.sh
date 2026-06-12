@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 #
-# network-wrong-port.sh — Scenario 5: service that listens on the WRONG port.
+# network-wrong-port.sh - Scenario 5: service that listens on the WRONG port.
 # Expected on :9081 but actually binds to :9181.
 # Students must use ss -tulpn to discover the mismatch.
 #
@@ -10,7 +10,7 @@ LAB_LOG_DIR="${LAB_LOG_DIR:-/var/log/linux-ops-lab}"
 LOG="$LAB_LOG_DIR/network-wrong-port.log"
 # BUG: should be 9081 but is 9181
 PORT=9181
-BODY="lab-network-wrong-port — you found the real port!"
+BODY="lab-network-wrong-port - you found the real port!"
 
 trap 'echo "[network-wrong-port] received signal, exiting" | tee -a "$LOG"; exit 0' INT TERM
 

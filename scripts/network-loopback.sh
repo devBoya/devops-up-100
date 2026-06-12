@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 #
-# network-loopback.sh — Scenario 5: service bound to localhost only.
+# network-loopback.sh - Scenario 5: service bound to localhost only.
 # Listens on 127.0.0.1:9082 instead of 0.0.0.0:9082.
 # Reachable inside the VM but not from the host or other machines.
 #
@@ -11,7 +11,7 @@ LOG="$LAB_LOG_DIR/network-loopback.log"
 PORT="${LAB_NETWORK_LOOPBACK_PORT:-9082}"
 # BUG: binds to 127.0.0.1 instead of 0.0.0.0
 BIND="127.0.0.1"
-BODY="lab-network-loopback — bound to localhost only"
+BODY="lab-network-loopback - bound to localhost only"
 
 trap 'echo "[network-loopback] received signal, exiting" | tee -a "$LOG"; exit 0' INT TERM
 
